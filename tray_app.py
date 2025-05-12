@@ -30,8 +30,8 @@ class TrayApp:
         # self.__icon_thread = threading.Thread(target=self.__run, daemon=True)
         # self.__icon_thread.start()
 
-        self.clipboard_monitor = KeyListener(config_manager)
-        self.clipboard_monitor.start()
+        # self.clipboard_monitor = KeyListener(config_manager)
+        # self.clipboard_monitor.start()
 
         self.__run()
 
