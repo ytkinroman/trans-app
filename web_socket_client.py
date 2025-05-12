@@ -1,76 +1,84 @@
 import websocket
-import threading
+from threading import Thread
 from logging import getLogger
-import os
-from json import load, JSONDecodeError, loads
+from json import loads
+from config_manager import ConfigurationManager
 
 logger = getLogger(__name__)
 
-WEBSOCKET_CONFIG_FILE = "config/websocket_config.json"
-
 
 class WebSocketClient:
-    def __init__(self):
-        self.server_url = None
-        self.ws = None
-        self.ws_session_id = None
-        self._first_message_received = False
+    def __init__(self, config_manager: ConfigurationManager) -> None:
+        self.__config_manager = config_manager
+        self.__server_url = self.__config_manager.get_ws_url()
+
+        self.__ws = None
+        self.__ws_thread = None
+        self.__ws_session_id = None
+        self.__connected = False
 
     def connect(self):
-        try:
-            self.ws = websocket.WebSocketApp(
-                self.server_url,
-                on_message=self.on_message,
-                on_error=self.on_error,
-                on_close=self.on_close
-            )
-            self.ws.on_open = self.on_open
-            threading.Thread(target=self.ws.run_forever, daemon=True).start()
-        except Exception as e:
-            logger.error(f"Error connecting to WebSocket: {e}")
+        self.__ws = websocket.WebSocketApp(
+            self.__server_url,
+            on_open=self.on_open,
+            on_message=self.on_message,
+            on_error=self.on_error,
+            on_close=self.on_close
+        )
 
-    @staticmethod
-    def on_open(ws):
-        logger.info("WebSocket connection opened.")
+        self.__ws_thread = Thread(target=self.__ws.run_forever, deamon=True)
+        self.__ws_thread.start()
+
+    def on_open(self, ws):
+        self.__connected = True
+        logger.info(f"WebSocket connection opened to {self.__server_url}")
 
     def on_message(self, ws, message):
-        if not self._first_message_received:
-            try:
-                data = loads(message)
-                if "ws_session_id" in data:
-                    self.ws_session_id = data["ws_session_id"]
-                    logger.info(f"Session ID received: {self.ws_session_id}")
-                    self._first_message_received = True
-                    return  # Прекращаем обработку первого сообщения
-            except JSONDecodeError:
-                logger.error("Failed to parse first WebSocket message as JSON")
+        logger.info(f"Message received: {message}")
+        try:
+            data = loads(message)
+            session_id = data.get("session_id")
+            if session_id:
+                self.__ws_session_id = session_id
+                logger.info(f"Session ID updated: {session_id}")
+        except Exception as e:
+            logger.error(f"Failed to parse message: {e}")
 
-        logger.info(f'Response: "{message}"')
+    def on_error(self, ws, error):
+        self.__connected = False
+        logger.error(f"WebSocket error: {error}")
 
-    @staticmethod
-    def on_error(ws, error):
-        logger.error(f"Error: {error}")
-
-    @staticmethod
-    def on_close(ws, close_status_code, close_msg):
-        logger.info("WebSocket connection closed.")
+    def on_close(self, ws, close_status_code, close_msg):
+        self.__connected = False
+        logger.info(f"WebSocket connection closed: {close_status_code} - {close_msg}")
 
     def send_message(self, text: str):
-        logger.info(f'Request: "{text}"')
-        if self.ws:
-            self.ws.send(text)
+        if self.__ws and self.__connected:
+            self.__ws.send(text)
+            logger.info(f"Sent message: {text}")
+        else:
+            logger.warning("Can't send message: WebSocket is not connected.")
 
     def close_connection(self):
-        if self.ws:
-            self.ws.close()
+        if self.__ws:
+            self.__ws.close()
+        if self.__ws_thread and self.__ws_thread.is_alive():
+            self.__ws_thread.join(timeout=1)
+        self.__connected = False
+        logger.info("WebSocket connection closed manually.")
 
     def get_session_id(self) -> str | None:
-        return self.ws_session_id
+        return self.__ws_session_id
 
-    def __load_config(self):
-        if os.path.exists(WEBSOCKET_CONFIG_FILE):
-            with open(WEBSOCKET_CONFIG_FILE, "r", encoding="utf-8") as file:
-                config = load(file)
-                self.server_url = config.get("websocket_url", "")
-            logger.info('Настройки конфигурации подключения к WebSocket успешно загружены.')
-        self.__load_config()
+
+if __name__ == "__main__":
+    config = ConfigurationManager()  # Предполагается, что класс реализован
+    client = WebSocketClient(config)
+    client.connect()
+
+    # Пример использования (только для теста)
+    import time
+    time.sleep(2)
+    client.send_message('{"action": "hello"}')
+    time.sleep(10)
+    client.close_connection()

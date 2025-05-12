@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw
 from logging import getLogger
 from config_manager import ConfigurationManager
 from webbrowser import open as open_url
+from web_socket_client import WebSocketClient
 from clipboard_monitor import KeyListener
 
 
@@ -10,11 +11,11 @@ logger = getLogger(__name__)
 
 
 class TrayApp:
-    def __init__(self, config_manager: ConfigurationManager) -> None:
+    def __init__(self, config_manager: ConfigurationManager, websocket_client=None) -> None:
         logger.info("Инициализация TrayApp началась...")
 
         self.__config_manager = config_manager
-        # self.__websocket_client = websocket_client
+        self.__websocket_client = websocket_client
 
         self.__icon = Icon(
             self.__config_manager.get_app_name(),
@@ -24,16 +25,18 @@ class TrayApp:
         )
         logger.info("Инициализация TrayApp завершена")
 
-        self.clipboard_monitor = KeyListener(self.__config_manager)
+        self.clipboard_monitor = KeyListener()
         self.clipboard_monitor.start()
 
         # self.__icon_thread = threading.Thread(target=self.__run, daemon=True)
         # self.__icon_thread.start()
 
-        self.clipboard_monitor = KeyListener(config_manager)
-        self.clipboard_monitor.start()
-
         self.__run()
+
+
+
+
+
 
     @staticmethod
     def __create_tray_icon() -> Image:
@@ -96,9 +99,23 @@ class TrayApp:
                 Menu(*language_menu)
             ),
             Menu.SEPARATOR,
+            Item("Настройки",
+                 Menu(
+                     Item(
+                         "Копировать в буфер обмена",
+                         self.__on_copy_to_clipboard_toggle,
+                         checked=lambda item: self.__config_manager.is_copy_to_clipboard()
+                     ),
+                     # Item("Комбинация клавиш", self.__on_hotkey_settings),
+                 ),
+            ),
             Item("Информация", self.__on_info),
             Item("Выход", self.__on_exit),
         )
+
+    # def __on_hotkey_settings(self):
+    #     logger.info('Нажата кнопка "Комбинация клавиш"')
+    #     pass
 
     def __on_copy_to_clipboard_toggle(self):
         logger.info('Нажата кнопка "Копировать в буфер обмена"')
@@ -126,7 +143,7 @@ class TrayApp:
     def __on_exit(self):
         logger.info('Нажата кнопка "Выход"')
         logger.info("Завершение работы TrayApp...")
-        self.clipboard_monitor.stop()  # Остановка потока с KeyListener
+        # self.__websocket_client.close_connection()
         self.__icon.stop()
 
     def __on_info(self):
@@ -135,5 +152,7 @@ class TrayApp:
 
     def __run(self):
         logger.info("Запуск TrayApp...")
+
+        self.clipboard_monitor.start()
 
         self.__icon.run()
