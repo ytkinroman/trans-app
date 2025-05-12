@@ -28,7 +28,7 @@ class KeyListener(Thread):
                 # Здесь можно добавить логику обработки
                 print("Hotkey pressed!")
                 clipboard_text = pyperclip.paste()
-                trimmed_text = clipboard_text[:200] if clipboard_text else ""
+                trimmed_text = clipboard_text[:900] if clipboard_text else ""
 
                 print(trimmed_text)
                 # pyperclip.copy("Текст из горячей клавиши")
