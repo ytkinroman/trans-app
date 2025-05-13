@@ -35,7 +35,7 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
-.logs/
+logs/
 
 # Unit test / coverage reports
 htmlcov/
@@ -83,10 +83,7 @@ target/
 profile_default/
 ipython_config.py
 
-
-
-
-.config/
+config/
 
 
 # pyenv
