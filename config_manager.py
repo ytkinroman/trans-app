@@ -1,186 +1,202 @@
-from logging import getLogger
-from json import load, dump
-from enum import Enum
 import os
+from json import load, dump
+from logging import getLogger
+from typing import Dict, Any, List
+
+
+CONFIG_DIR = "config"
+
+APP_CONFIG_FILE = "app_config.json"
+USER_CONFIG_FILE = "user_config.json"
+SERVER_CONFIG_FILE = "server_config.json"
+
+DEFAULT_APP_CONFIG = {
+    "app_name": "AI Translate HUB",
+    "app_description": "AI Translate HUB – онлайн переводчик",
+    "app_version": "1.2",
+    "app_site": "https://ai-translate-hub.ru/"
+}
+
+DEFAULT_USER_CONFIG = {
+    "selected_language": "ru",
+    "selected_translator": "yandex",
+    "translate_keyboard": "alt+shift+t"
+}
+
+DEFAULT_SERVER_CONFIG = {
+    "server_host": "0.0.0.0",
+    "server_port": "8080"
+}
+
+
+translators_data = [
+    ("ardray1", "АРДРЕЙ-ГПТ 2000.1"),
+    ("ardray2", "ARDRAY 5000"),
+    ("yandex", "Яндекс Переводчик"),
+    ("google", "Google Translate"),
+]
+
+languages_data = [
+    ("ru", "Русский"),
+    ("en", "Английский"),
+    ("de", "Немецкий"),
+    ("fr", "Французский"),
+]
 
 
 logger = getLogger(__name__)
 
-USER_CONFIG_FILE = "config/user_config.json"
-APP_CONFIG_FILE = "config/app_config.json"
-WS_CONFIG_FILE = "config/websocket_config.json"
-# LOGGING_CONFIG_FILE = "config/logging_config.json"
+
+class Translator:
+    def __init__(self, code: str, name: str):
+        self._code = code
+        self._name = name
+
+    @property
+    def code(self) -> str:
+        return self._code
+
+    @property
+    def name(self) -> str:
+        return self._name
 
 
-class Translator(Enum):
-    ARDRAY1 = ("ardray1", "АРДРЕЙ-ГПТ 2000.1")
-    ARDRAY2 = ("ardray2", "ARDRAY 5000")
-    YANDEX = ("yandex", "Яндекс Переводчик")
-    GOOGLE = ("google", "Google Translate (Бета)")
-    DEEPL = ("deepl", "DeepL Translate (Бета)")
-    BING = ("bing", "Bing (Microsoft) Translator (Бета)")
-    HUGGING_FACE_1 = ("hugging-face-1", "ChatGPT (Бета)")
-    HUGGING_FACE_2 = ("hugging-face-2", "Hugging Face 2")
-    HUGGING_FACE_3 = ("hugging-face-3", "Hugging Face 3")
-    HUGGING_FACE_4 = ("hugging-face-4", "Hugging Face 4")
+class Language:
+    def __init__(self, code: str, name: str):
+        self._code = code
+        self._name = name
 
-    def __init__(self, code, display_name):
-        self.code = code
-        self.display_name = display_name
+    @property
+    def code(self) -> str:
+        return self._code
 
-    @classmethod
-    def get_code(cls, code):
-        for translator in cls:
-            if translator.code == code:
-                return translator
+    @property
+    def name(self) -> str:
+        return self._name
 
 
-class Language(Enum):
-    RU = ("ru", "Русский")
-    EN = ("en", "Английский")
-    DE = ("de", "Немецкий (Бета)")
-    FR = ("fr", "Французский (Бета)")
-    ES = ("es", "Испанский (Бета)")
-    AZ = ("az", "Азербайджанский (Бета)")
+class BaseConfig:
+    def __init__(self, config_path: str, default_config: Dict[str, Any]):
+        self._config_path = config_path
+        self._default_config = default_config
+        self._config = None
 
-    def __init__(self, code, display_name):
-        self.code = code
-        self.display_name = display_name
+    def load(self) -> None:
+        if os.path.isfile(self._config_path):
+            with open(self._config_path, "r", encoding="utf-8") as f:
+                self._config = load(f)
+            logger.info(f"Config loaded from {self._config_path}")
+        else:
+            self._config = self._default_config
+            with open(self._config_path, "w", encoding="utf-8") as f:
+                dump(self._default_config, f, indent=4, ensure_ascii=False)
+            logger.info(f"Created default config at {self._config_path}")
 
-    @classmethod
-    def get_code(cls, code):
-        for language in cls:
-            if language.code == code:
-                return language
+    def save(self) -> None:
+        with open(self._config_path, "w", encoding="utf-8") as f:
+            dump(self._config, f, indent=4, ensure_ascii=False)
+        logger.info(f"Config saved to {self._config_path}")
+
+    @property
+    def config(self) -> Dict[str, Any]:
+        return self._config
+
+
+class AppConfig(BaseConfig):
+    def __init__(self):
+        config_path = os.path.join(CONFIG_DIR, APP_CONFIG_FILE)
+        super().__init__(config_path, DEFAULT_APP_CONFIG)
+
+    @property
+    def name(self) -> str:
+        return self._config["app_name"]
+
+    @property
+    def version(self) -> str:
+        return self._config["app_version"]
+
+    @property
+    def description(self) -> str:
+        return self._config["app_description"]
+
+    @property
+    def site(self) -> str:
+        return self._config["app_site"]
+
+
+class ServerConfig(BaseConfig):
+    def __init__(self):
+        config_path = os.path.join(CONFIG_DIR, SERVER_CONFIG_FILE)
+        super().__init__(config_path, DEFAULT_SERVER_CONFIG)
+
+    @property
+    def server_address(self) -> str:
+        return f"{self._config['server_host']}:{self._config['server_port']}"
+
+    @property
+    def websocket_url(self) -> str:
+        return f"ws://{self.server_address}/ws"
+
+    @property
+    def translate_api_url(self) -> str:
+        return f"https://{self.server_address}/translate"
+
+
+class UserConfig(BaseConfig):
+    def __init__(self):
+        config_path = os.path.join(CONFIG_DIR, USER_CONFIG_FILE)
+        super().__init__(config_path, DEFAULT_USER_CONFIG)
+
+    @property
+    def translate_keyboard(self) -> str:
+        return self._config["translate_keyboard"]
+
+    @property
+    def selected_translator(self) -> str:
+        return self._config["selected_translator"]
+
+    @property
+    def selected_language(self) -> str:
+        return self._config["selected_language"]
+
+    def set_language(self, language: Language) -> None:
+        self._config["selected_language"] = language.code
+        self.save()
+
+    def set_translator(self, translator: Translator) -> None:
+        self._config["selected_translator"] = translator.code
+        self.save()
 
 
 class ConfigurationManager:
     def __init__(self):
-        self.__app_name = None
-        self.__app_desc = None
-        self.__app_site = None
-        self.__app_ver = None
-        self.__app_copy_to_clipboard = False
-        self.__app_translate_keyboard = None
+        self.__translators = self.__init_translators()
+        self.__languages = self.__init_languages()
 
-        self.__selected_language = Language.RU
-        self.__selected_translator = Translator.ARDRAY1
-
-        self.__websocket_url = None
-        self.__websocket_token = ""
+        self.app = AppConfig()
+        self.server = ServerConfig()
+        self.user= UserConfig()
 
         self.__load_config()
 
-    def __load_config(self):
-        # self.__load_logger_config()
-        self.__load_app_config()
-        self.__load_user_config()
-        self.__load_ws_config()
-
-    def __load_app_config(self):
-        if os.path.exists(APP_CONFIG_FILE):
-            with open(APP_CONFIG_FILE, "r", encoding="utf-8") as file:
-                app_config = load(file)
-
-                self.__app_name = app_config.get("app_name")
-                self.__app_desc = app_config.get("app_description")
-                self.__app_site = app_config.get("app_version")
-                self.__app_ver = app_config.get("app_site")
-                self.__app_copy_to_clipboard = app_config.get("app_copy_to_clipboard")
-                self.__app_translate_keyboard = app_config.get("app_translate_keyboard")
-
-            logger.info("Application config loaded")
-
-    def save_app_config(self):
-        config = {
-            "app_name": self.__app_name,
-            "app_description": self.__app_desc,
-            "app_version": self.__app_ver,
-            "app_site": self.__app_site,
-            "app_copy_to_clipboard": self.__app_copy_to_clipboard,
-            "app_translate_keyboard": self.__app_translate_keyboard
-        }
-
-        with open(APP_CONFIG_FILE, "w", encoding="utf-8") as file:
-            dump(config, file, ensure_ascii=False, indent=4)
-
-        logger.info("Application configuration saved successfully")
-
-    def __load_user_config(self):
-        if os.path.exists(USER_CONFIG_FILE):
-            with open(USER_CONFIG_FILE, "r", encoding="utf-8") as file:
-                user_config = load(file)
-
-                lang_code = user_config.get("selected_language")
-                self.__selected_language = Language.get_code(lang_code)
-
-                translator_code = user_config.get("selected_translator")
-                self.__selected_translator = Translator.get_code(translator_code)
-
-            logger.info("User config loaded")
-
-    def save_user_config(self):
-        config = {
-            "selected_language": self.__selected_language.code,
-            "selected_translator": self.__selected_translator.code
-        }
-
-        os.makedirs(os.path.dirname(USER_CONFIG_FILE), exist_ok=True)
-
-        with open(USER_CONFIG_FILE, "w", encoding="utf-8") as file:
-            dump(config, file, ensure_ascii=False, indent=4)
-
-        logger.info("User configuration saved successfully")
-
-    def __load_ws_config(self):
-        if os.path.exists(WS_CONFIG_FILE):
-            with open(WS_CONFIG_FILE, "r", encoding="utf-8") as file:
-                ws_config = load(file)
-
-                self.__websocket_url = ws_config.get("websocket_url")
-
-            logger.info("Websocket config loaded")
-
-    def get_app_name(self):
-        return self.__app_name
-
-    def get_app_description(self):
-        return self.__app_desc
-
-    def get_app_site(self):
-        return self.__app_site
-
-    def is_copy_to_clipboard(self) -> bool:
-        return self.__app_copy_to_clipboard
-
-    def set_copy_to_clipboard(self, value: bool):
-        self.__app_copy_to_clipboard = value
-        self.save_app_config()
+    @staticmethod
+    def __init_translators() -> List[Translator]:
+        return [Translator(code, name) for code, name in translators_data]
 
     @staticmethod
-    def get_all_languages():
-        return list(Language)
+    def __init_languages() -> List[Language]:
+        return [Language(code, name) for code, name in languages_data]
 
-    def get_language(self):
-        return self.__selected_language
+    def __load_config(self) -> None:
+        if not os.path.exists(CONFIG_DIR):
+            os.makedirs(CONFIG_DIR)
 
-    def set_language(self, language: Language):
-        self.__selected_language = language
-        self.save_user_config()
+        self.app.load()
+        self.server.load()
+        self.user.load()
 
-    @staticmethod
-    def get_all_translators():
-        return list(Translator)
+    def get_languages(self) -> List[Language]:
+        return self.__languages
 
-    def get_translator(self) -> Translator:
-        return self.__selected_translator
-
-    def set_translator(self, translator: Translator):
-        self.__selected_translator = translator
-        self.save_user_config()
-
-    def get_ws_url(self) -> str:
-        return self.__websocket_url
-
-    def get_hotkey(self) -> dict:
-        return self.__app_translate_keyboard
+    def get_translators(self) -> List[Translator]:
+        return self.__translators
