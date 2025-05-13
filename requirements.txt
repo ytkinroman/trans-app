@@ -1,3 +1,7 @@
 pystray==0.19.5
 pillow==11.1.0
 olefile==0.47
+pyperclip==1.9.0
+keyboard==0.13.5
+requests==2.32.3
+websocket-client==1.8.0
