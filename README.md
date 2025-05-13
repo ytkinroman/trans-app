@@ -29,7 +29,7 @@
 ## Сборка
 1. Клонируйте репозиторий на свой компьютер:
 ```
-git clone https://github.com/ytkinroman/XXXXX.git
+https://github.com/ytkinroman/AI-Translate-HUB-Client.git
 ```
 2. Установите необходимые зависимости:
 ```
