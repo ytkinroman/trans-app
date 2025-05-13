@@ -1,9 +1,8 @@
 from pystray import Icon, Menu, MenuItem as Item
-from PIL import Image, ImageDraw
+from module.utils import create_app_icon
 from logging import getLogger
 from config_manager import ConfigurationManager
-from webbrowser import open as open_url
-from clipboard_monitor import KeyListener
+from webbrowser import open as open_link
 
 
 logger = getLogger(__name__)
@@ -11,88 +10,55 @@ logger = getLogger(__name__)
 
 class TrayApp:
     def __init__(self, config_manager: ConfigurationManager) -> None:
-        logger.info("Инициализация TrayApp началась...")
+        logger.info("Starting TrayApp initialization")
 
-        self.__config_manager = config_manager
-        # self.__websocket_client = websocket_client
+        self.__config = config_manager
 
         self.__icon = Icon(
-            self.__config_manager.get_app_name(),
-            self.__create_tray_icon(),
-            self.__config_manager.get_app_description(),
+            self.__config.app.name,
+            create_app_icon(),
+            self.__config.app.description,
             self.__create_menu()
         )
-        logger.info("Инициализация TrayApp завершена")
 
-        self.clipboard_monitor = KeyListener(self.__config_manager)
-        self.clipboard_monitor.start()
+        logger.info("TrayApp initialized successfully")
 
-        # self.__icon_thread = threading.Thread(target=self.__run, daemon=True)
-        # self.__icon_thread.start()
-
-        # self.clipboard_monitor = KeyListener(config_manager)
+        # self.clipboard_monitor = KeyListener(self.__config_manager)
         # self.clipboard_monitor.start()
 
         self.__run()
 
-    @staticmethod
-    def __create_tray_icon() -> Image:
-        width, height = 64, 64
-        image = Image.new("RGB", (width, height), color="blue")
-        dc = ImageDraw.Draw(image)
-        dc.ellipse((10, 10, width - 10, height - 10), fill="yellow")
-        logger.info("Инициализация иконки для TrayApp завершена")
-        return image
-
     def __create_menu(self) -> Menu:
-        logger.info("Инициализация меню для TrayApp завершена")
-
-        translator_groups = [
-            self.__config_manager.get_all_translators()[:2],
-            self.__config_manager.get_all_translators()[2:6],
-            self.__config_manager.get_all_translators()[6:]
-        ]
-
-        language_groups = [
-            self.__config_manager.get_all_languages()[:2],
-            self.__config_manager.get_all_languages()[2:],
-        ]
-
+        translators = self.__config.translators
         translator_menu = []
-        for i, group in enumerate(translator_groups):
-            if i > 0:
-                translator_menu.append(Menu.SEPARATOR)
 
-            for translator in group:
-                translator_menu.append(
-                    Item(
-                        translator.display_name,
-                        self.__on_translator_select(translator),
-                        checked=lambda item, t=translator: self.__config_manager.get_translator() == t
-                    )
-                )
+        for translator in translators:
+            t_item = Item(
+                translator.name,
+                self.__on_translator_select(translator),
+                checked=lambda item, t=translator.code: self.__config.user.selected_translator == t
+            )
+            translator_menu.append(t_item)
 
+
+        languages = self.__config.languages
         language_menu = []
-        for i, group in enumerate(language_groups):
-            if i > 0:
-                language_menu.append(Menu.SEPARATOR)
 
-            for language in group:
-                language_menu.append(
-                    Item(
-                        language.display_name,
-                        self.__on_language_select(language),
-                        checked=lambda item, lang=language: self.__config_manager.get_language() == lang
-                    )
-                )
+        for language in languages:
+            lang_item = Item(
+                language.name,
+                self.__on_language_select(language),
+                checked=lambda item, lang=language.code: self.__config.user.selected_language == lang
+            )
+            language_menu.append(lang_item)
 
-        return Menu(
+        menu = Menu(
             Item(
                 "Переводчик",
                 Menu(*translator_menu)
             ),
             Item(
-                "Язык перевода",
+                "Переводить на",
                 Menu(*language_menu)
             ),
             Menu.SEPARATOR,
@@ -100,40 +66,34 @@ class TrayApp:
             Item("Выход", self.__on_exit),
         )
 
-    def __on_copy_to_clipboard_toggle(self):
-        logger.info('Нажата кнопка "Копировать в буфер обмена"')
-        current_state = self.__config_manager.is_copy_to_clipboard()
-        self.__config_manager.set_copy_to_clipboard(not current_state)
-        logger.info(f"Копирование в буфер обмена {'включено' if not current_state else 'отключено'}")
-        self.__icon.update_menu()
+        logger.info("TrayApp menu initialized successfully")
+        return menu
 
     def __on_language_select(self, language):
         def handler():
-            self.__config_manager.set_language(language)
+            logger.info(f'Translation language changed to "{language.name}"')
+            self.__config.user.set_language(language)
             self.__icon.update_menu()
-            logger.info(f'Язык перевода изменён на "{language.display_name}"')
-
         return handler
 
     def __on_translator_select(self, translator):
         def handler():
-            self.__config_manager.set_translator(translator)
+            logger.info(f'Translator changed to "{translator.name}"')
+            self.__config.user.set_translator(translator)
             self.__icon.update_menu()
-            logger.info(f'Переводчик изменён на "{translator.display_name}"')
-
         return handler
 
     def __on_exit(self):
-        logger.info('Нажата кнопка "Выход"')
-        logger.info("Завершение работы TrayApp...")
-        self.clipboard_monitor.stop()  # Остановка потока с KeyListener
+        logger.info('Button "Exit" clicked')
+        # self.clipboard_monitor.stop()  # Остановка потока с KeyListener
+        logger.info("TrayApp is shutting down...")
         self.__icon.stop()
 
     def __on_info(self):
-        logger.info('Нажата кнопка "Информация"')
-        open_url(self.__config_manager.get_app_site())
+        logger.info('Button "Information" clicked')
+        open_link(self.__config.app.site)
+        logger.info("Information website opened successfully")
 
     def __run(self):
-        logger.info("Запуск TrayApp...")
-
+        logger.info("Successfully started TrayApp")
         self.__icon.run()
