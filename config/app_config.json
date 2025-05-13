@@ -1,8 +1,0 @@
-{
-    "app_name": "AI Translate HUB",
-    "app_description": "AI Translate HUB – онлайн переводчик",
-    "app_version": "1.4.0",
-    "app_site": "https://ai-translate-hub.ru/",
-    "app_copy_to_clipboard": true,
-    "app_translate_keyboard": "alt+shift+t"
-}
