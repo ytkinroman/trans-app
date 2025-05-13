@@ -54,6 +54,7 @@ pyinstaller build.spec
 
 ## Лицензия
 Этот проект лицензируется в соответствии с условиями лицензии *Massachusetts Institute of Technology (MIT):*
+
 ```Лицензия Массачусетского технологического института
 
 Авторское право (c) 2025 YTKIN ROMAN
