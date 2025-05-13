@@ -13,7 +13,7 @@ SERVER_CONFIG_FILE = "server_config.json"
 DEFAULT_APP_CONFIG = {
     "app_name": "AI Translate HUB",
     "app_description": "AI Translate HUB – онлайн переводчик",
-    "app_version": "1.2",
+    "app_version": "1.2",  # TODO: ЗАМЕНИТЬ НА РЕЛИЗЕ !
     "app_site": "https://ai-translate-hub.ru/"  # TODO: ЗАМЕНИТЬ НА ДОКУМЕНТАЦИЮ !
 }
 
@@ -126,7 +126,7 @@ class AppConfig(BaseConfig):
 
 class ServerConfig(BaseConfig):
     def __init__(self):
-        config_path = os.path.join(CONFIG_DIR, SERVER_CONFIG_FILE)
+        config_path = os.path.join(CONFIG_DIR, SERVER_CONFIG_FILE)  # TODO: ЗАПИХНУТЬ-ПЕРЕНЕСТИ В .ENV !!!!!
         super().__init__(config_path, DEFAULT_SERVER_CONFIG)
 
     @property
@@ -139,7 +139,7 @@ class ServerConfig(BaseConfig):
 
     @property
     def translate_api_url(self) -> str:
-        return f"https://{self.server_address}/translate"
+        return f"https://{self.server_address}/translate"  # TODO: ВЫКАТИТЬ ОБНОВУ return f"https://{self.server_address}/api/v1/translate"
 
 
 class UserConfig(BaseConfig):

@@ -21,7 +21,7 @@ class KeyListener(Thread):
 
     def start(self):
         """Метод, который запускается при старте потока"""
-        logger.info("Запуск отслеживания комбинации клавиш")
+        logger.info("Started KeyListener...")
 
         self.ws.connect(self.__config.server.websocket_url)
         session_id = json.loads(self.ws.recv()).get("session_id")
