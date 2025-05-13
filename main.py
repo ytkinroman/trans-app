@@ -63,7 +63,7 @@ def main() -> None:
             logging_config = load(f)
         logging.config.dictConfig(logging_config)
         logger = getLogger()
-        logger.info(f"Logger config loaded from {logging_config_path}")
+        logger.info(f"Config loaded from {logging_config_path}")
     else:
         with open(logging_config_path, "w", encoding="utf-8") as f:
             dump(DEFAULT_LOGGING_CONFIG, f, indent=4, ensure_ascii=False)
