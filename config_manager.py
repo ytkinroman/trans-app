@@ -14,30 +14,30 @@ DEFAULT_APP_CONFIG = {
     "app_name": "AI Translate HUB",
     "app_description": "AI Translate HUB – онлайн переводчик",
     "app_version": "1.2",
-    "app_site": "https://ai-translate-hub.ru/"
+    "app_site": "https://ai-translate-hub.ru/"  # TODO: ЗАМЕНИТЬ НА ДОКУМЕНТАЦИЮ !
 }
 
 DEFAULT_USER_CONFIG = {
     "selected_language": "ru",
     "selected_translator": "yandex",
-    "translate_keyboard": "alt+shift+t"
+    "translate_keyboard": "alt+shift+t"  # TODO: ЗАМЕНА ГОРЯЧИХ КЛАВИШ ТОЛЬКО В CFG !
 }
 
 DEFAULT_SERVER_CONFIG = {
-    "server_host": "0.0.0.0",
+    "server_host": "0.0.0.0",  # TODO: СЮДА НАДО АДРЕС СЕРВЕРА !
     "server_port": "8080"
 }
 
 
 translators_data = [
-    ("ardray1", "АРДРЕЙ-ГПТ 2000.1"),
+    ("ardray1", "АРДРЕЙ-ГПТ 2000.1"),  # TODO: СПРАШИВАЕМ У СЕРВЕРА !
     ("ardray2", "ARDRAY 5000"),
     ("yandex", "Яндекс Переводчик"),
     ("google", "Google Translate"),
 ]
 
 languages_data = [
-    ("ru", "Русский"),
+    ("ru", "Русский"),  # TODO: СПРАШИВАЕМ У СЕРВЕРА !
     ("en", "Английский"),
     ("de", "Немецкий"),
     ("fr", "Французский"),
@@ -49,30 +49,30 @@ logger = getLogger(__name__)
 
 class Translator:
     def __init__(self, code: str, name: str):
-        self._code = code
-        self._name = name
+        self.__code = code
+        self.__name = name
 
     @property
     def code(self) -> str:
-        return self._code
+        return self.__code
 
     @property
     def name(self) -> str:
-        return self._name
+        return self.__name
 
 
 class Language:
     def __init__(self, code: str, name: str):
-        self._code = code
-        self._name = name
+        self.__code = code
+        self.__name = name
 
     @property
     def code(self) -> str:
-        return self._code
+        return self.__code
 
     @property
     def name(self) -> str:
-        return self._name
+        return self.__name
 
 
 class BaseConfig:
@@ -170,8 +170,13 @@ class UserConfig(BaseConfig):
 
 class ConfigurationManager:
     def __init__(self):
+        # TODO: ДОБАВИТЬ ЗАПРОС ЯЗЫКОВ У СЕРВЕРА !
+        # TODO: ДОБАВИТЬ ЗАПРОС ПЕРЕВОДЧИКОВ У СЕРВЕРА !
+
         self.__translators = self.__init_translators()
         self.__languages = self.__init_languages()
+
+        # TODO: Если self.__translators и self.__languages пустые, то завершаем работу программы.
 
         self.app = AppConfig()
         self.server = ServerConfig()
@@ -195,8 +200,10 @@ class ConfigurationManager:
         self.server.load()
         self.user.load()
 
-    def get_languages(self) -> List[Language]:
+    @property
+    def languages(self) -> List[Language]:
         return self.__languages
 
-    def get_translators(self) -> List[Translator]:
+    @property
+    def translators(self) -> List[Translator]:
         return self.__translators
