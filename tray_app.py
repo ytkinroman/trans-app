@@ -15,7 +15,8 @@ class TrayApp:
 
         self.__config = config_manager
 
-        self.__key_listener = KeyListener(self.__config)  # TODO: Init KeyListener
+        #self.__key_listener = KeyListener(self.__config)  # TODO: Init KeyListener
+        #self.__key_listener.start()
 
         self.__icon = Icon(
             self.__config.app.name,
@@ -87,7 +88,7 @@ class TrayApp:
         logger.info('Button "Exit" clicked')
 
         logger.info("KeyListener is shutting down...")
-        self.__key_listener.stop()  # TODO: Остановка потока с KeyListener
+        #self.__key_listener.stop()  # TODO: Остановка потока с KeyListener
 
         logger.info("TrayApp is shutting down...")
         self.__icon.stop()
@@ -99,7 +100,7 @@ class TrayApp:
 
     def __run(self):
         logger.info("Started KeyListener...")
-        self.__key_listener.start()  # TODO: Запуск потока с KeyListener
+        # self.__key_listener.start()  # TODO: Запуск потока с KeyListener
 
         logger.info("Successfully started TrayApp")
         self.__icon.run()
