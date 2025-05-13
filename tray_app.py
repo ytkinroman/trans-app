@@ -3,6 +3,7 @@ from module.utils import create_app_icon
 from logging import getLogger
 from config_manager import ConfigurationManager
 from webbrowser import open as open_link
+from key_listener import KeyListener
 
 
 logger = getLogger(__name__)
@@ -14,6 +15,8 @@ class TrayApp:
 
         self.__config = config_manager
 
+        self.__key_listener = KeyListener(self.__config)  # TODO: Init KeyListener
+
         self.__icon = Icon(
             self.__config.app.name,
             create_app_icon(),
@@ -22,9 +25,6 @@ class TrayApp:
         )
 
         logger.info("TrayApp initialized successfully")
-
-        # self.clipboard_monitor = KeyListener(self.__config_manager)
-        # self.clipboard_monitor.start()
 
         self.__run()
 
@@ -85,7 +85,10 @@ class TrayApp:
 
     def __on_exit(self):
         logger.info('Button "Exit" clicked')
-        # self.clipboard_monitor.stop()  # Остановка потока с KeyListener
+
+        logger.info("KeyListener is shutting down...")
+        self.__key_listener.stop()  # TODO: Остановка потока с KeyListener
+
         logger.info("TrayApp is shutting down...")
         self.__icon.stop()
 
@@ -95,5 +98,8 @@ class TrayApp:
         logger.info("Information website opened successfully")
 
     def __run(self):
+        logger.info("Started KeyListener...")
+        self.__key_listener.start()  # TODO: Запуск потока с KeyListener
+
         logger.info("Successfully started TrayApp")
         self.__icon.run()
