@@ -3,6 +3,7 @@ from typing import List
 from module.translators import Translator, Language
 from module.configs import AppConfig, ServerConfig, UserConfig
 import requests
+import sys
 
 
 logger = getLogger(__name__)
@@ -28,6 +29,7 @@ class ConfigurationManager:
             self.__languages_data = list(data.get('languages', {}).items())
         else:
             logger.error("Ошибка при загрузке конфигурации с сервера")  # TODO: Если self.__translators и self.__languages пустые, то завершаем работу программы.
+            sys.exit()
 
         self.__translators = self.__init_translators()
         self.__languages = self.__init_languages()

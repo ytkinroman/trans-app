@@ -5,6 +5,7 @@ from typing import Dict, Any
 from module.translators import Translator, Language
 
 
+# CONFIG_DIR = "../config"  # TODO: Ставь это когда делаешь билд.
 CONFIG_DIR = "config"
 
 APP_CONFIG_FILE = "app_config.json"
