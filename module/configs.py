@@ -3,11 +3,10 @@ from json import load, dump
 from logging import getLogger
 from typing import Dict, Any
 from module.translators import Translator, Language
+from module.utils import get_config_dir
 
 
-# CONFIG_DIR = "../config"  # TODO: Ставь это когда делаешь билд.
-CONFIG_DIR = "config"
-
+CONFIG_DIR = get_config_dir()
 APP_CONFIG_FILE = "app_config.json"
 USER_CONFIG_FILE = "user_config.json"
 SERVER_CONFIG_FILE = "server_config.json"
@@ -41,8 +40,7 @@ class BaseConfig:
         self.__config = None
 
     def load(self) -> None:
-        if not os.path.exists(self.__config_path):
-            os.makedirs(self.__config_path)
+        # os.makedirs(os.path.dirname(self.__config_path), exist_ok=True)  # Проверя
 
         if os.path.isfile(self.__config_path):
             with open(self.__config_path, "r", encoding="utf-8") as f:
@@ -66,8 +64,7 @@ class BaseConfig:
 
 class AppConfig(BaseConfig):
     def __init__(self):
-        config_path = os.path.join(CONFIG_DIR, APP_CONFIG_FILE)
-        super().__init__(config_path, DEFAULT_APP_CONFIG)
+        super().__init__(os.path.join(get_config_dir(), "app_config.json"), DEFAULT_APP_CONFIG)
 
     @property
     def name(self) -> str:
@@ -88,8 +85,7 @@ class AppConfig(BaseConfig):
 
 class ServerConfig(BaseConfig):
     def __init__(self):
-        config_path = os.path.join(CONFIG_DIR, SERVER_CONFIG_FILE)  # TODO: ЗАПИХНУТЬ-ПЕРЕНЕСТИ В .ENV !!!!!
-        super().__init__(config_path, DEFAULT_SERVER_CONFIG)
+        super().__init__(os.path.join(get_config_dir(), "server_config.json"), DEFAULT_SERVER_CONFIG)
 
     @property
     def server_address(self) -> str:
@@ -107,8 +103,7 @@ class ServerConfig(BaseConfig):
 
 class UserConfig(BaseConfig):
     def __init__(self):
-        config_path = os.path.join(CONFIG_DIR, USER_CONFIG_FILE)
-        super().__init__(config_path, DEFAULT_USER_CONFIG)
+        super().__init__(os.path.join(get_config_dir(), "user_config.json"), DEFAULT_USER_CONFIG)
 
     @property
     def translate_keyboard(self) -> str:

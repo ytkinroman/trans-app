@@ -22,6 +22,6 @@ def get_config_dir() -> str:
         base_dir = os.path.dirname(os.path.abspath(__file__))
 
     config_dir = os.path.join(base_dir, "config")
-    os.makedirs(config_dir, exist_ok=True)
+    os.makedirs(config_dir, exist_ok=True)  # Создание директории, если её нет.
 
     return config_dir

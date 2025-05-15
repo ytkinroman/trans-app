@@ -6,6 +6,8 @@ import requests
 import sys
 
 
+SERVER_REQUEST_TIMEOUT = 2
+
 logger = getLogger(__name__)
 
 
@@ -20,16 +22,25 @@ class ConfigurationManager:
 
         self.__load_config()
 
-        session = requests.Session()
-        response = session.get(self.server.api_url + "get_config")
+        try:
+            session = requests.Session()
+            response = session.get(self.server.api_url + "get_config", timeout=SERVER_REQUEST_TIMEOUT)
 
-        if response.status_code == 200:  # TODO: ВЫНЕСТИ В ОТДЕЛЬНЫЙ МОДУЛЬ
-            data = response.json()
-            self.__translators_data = list(data.get('translators', {}).items())
-            self.__languages_data = list(data.get('languages', {}).items())
-        else:
-            logger.error("Ошибка при загрузке конфигурации с сервера")  # TODO: Если self.__translators и self.__languages пустые, то завершаем работу программы.
-            sys.exit()
+            if response.status_code == 200:
+                data = response.json()
+                self.__translators_data = list(data.get('translators', {}).items())
+                self.__languages_data = list(data.get('languages', {}).items())
+
+                if not self.__translators_data or not self.__languages_data:
+                    logger.error("Полученные данные с сервера пустые")
+                    sys.exit(1)
+            else:
+                logger.error(f'Ошибка при загрузке конфигурации с сервера. Статус: "{response.status_code}"')
+                sys.exit(1)
+
+        except Exception as e:
+            logger.error(f"Ошибка при загрузке конфигурации с сервера: {e}")
+            sys.exit(1)
 
         self.__translators = self.__init_translators()
         self.__languages = self.__init_languages()

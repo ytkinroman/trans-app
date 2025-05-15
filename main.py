@@ -4,9 +4,10 @@ import logging.config
 from logging import getLogger
 from config_manager import ConfigurationManager
 from tray_app import TrayApp
+from module.utils import get_config_dir
 
 
-CONFIG_DIR = "config"
+CONFIG_DIR = get_config_dir()
 LOG_DIR = "logs"
 LOG_FILE = "data.log"
 LOG_CONFIG_FILE = "logging_config.json"
@@ -50,9 +51,6 @@ def main() -> None:
 
     if not os.path.exists(LOG_DIR):
         os.makedirs(LOG_DIR)
-
-    if not os.path.exists(CONFIG_DIR):
-        os.makedirs(CONFIG_DIR)
 
     if not os.path.exists(log_file_path):
         with open(log_file_path, "w", encoding="utf-8") as f:
