@@ -40,8 +40,6 @@ class BaseConfig:
         self.__config = None
 
     def load(self) -> None:
-        # os.makedirs(os.path.dirname(self.__config_path), exist_ok=True)  # Проверя
-
         if os.path.isfile(self.__config_path):
             with open(self.__config_path, "r", encoding="utf-8") as f:
                 self.__config = load(f)
