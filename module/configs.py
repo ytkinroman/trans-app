@@ -14,7 +14,7 @@ SERVER_CONFIG_FILE = "server_config.json"
 DEFAULT_APP_CONFIG = {
     "app_name": "AI Translate HUB",
     "app_description": "AI Translate HUB – онлайн переводчик",
-    "app_version": "1.2",  # TODO: ЗАМЕНИТЬ НА РЕЛИЗЕ !
+    "app_version": "1.3.4-dev",  # TODO: ЗАМЕНИТЬ НА РЕЛИЗЕ !
     "app_site": "https://ai-translate-hub.ru/"  # TODO: ЗАМЕНИТЬ НА ДОКУМЕНТАЦИЮ !
 }
 
@@ -25,7 +25,7 @@ DEFAULT_USER_CONFIG = {
 }
 
 DEFAULT_SERVER_CONFIG = {
-    "server_host": "0.0.0.0",  # TODO: СЮДА НАДО АДРЕС СЕРВЕРА !
+    "server_host": "0.0.0.0",
     "server_port": "8080"
 }
 
@@ -95,8 +95,7 @@ class ServerConfig(BaseConfig):
 
     @property
     def api_url(self) -> str:
-        # return f"http://{self.server_address}/translate"  # TODO: ВЫКАТИТЬ ОБНОВУ return f"https://{self.server_address}/api/v1/translate"
-        return f"http://{self.server_address}/api/v1/"  # TODO: ВЫКАТИТЬ ОБНОВУ return f"https://{self.server_address}/api/v1/translate"
+        return f'http://{self.server_address}/api/v1/'  # TODO: ВЫКАТИТЬ ОБНОВУ return f"https://{self.server_address}/api/v1/translate"
 
 
 class UserConfig(BaseConfig):
