@@ -24,7 +24,7 @@ class ConfigurationManager:
 
         try:
             session = requests.Session()
-            response = session.get(self.server.api_url + "get_config", timeout=SERVER_REQUEST_TIMEOUT)
+            response = session.get(self.server.config_url, timeout=SERVER_REQUEST_TIMEOUT)
 
             if response.status_code == 200:
                 data = response.json()
@@ -39,7 +39,7 @@ class ConfigurationManager:
                 sys.exit(1)
 
         except Exception as e:
-            logger.error(f"Ошибка при загрузке конфигурации с сервера: {e}")
+            logger.error(f'Ошибка при загрузке конфигурации с сервера: "{e}"')
             sys.exit(1)
 
         self.__translators = self.__init_translators()

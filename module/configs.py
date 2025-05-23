@@ -95,9 +95,15 @@ class ServerConfig(BaseConfig):
 
     @property
     def api_url(self) -> str:
-        return f'http://{self.server_address}/api/v1/'  # TODO: ВЫКАТИТЬ ОБНОВУ return f"https://{self.server_address}/api/v1/translate"
+        return f'http://{self.server_address}/api/v1/'
 
-    # TODO: ДОБАВИТЬ ЭНД ПОИНТЫ ДЛЯ ЗАПРОСА ЯЗЫКОВ, ПЕРЕВОДЧИКОВ И САМОГО ПЕРЕВОДА !
+    @property
+    def translate_url(self) -> str:
+        return f'{self.api_url}translate'
+
+    @property
+    def config_url(self) -> str:
+        return f'{self.api_url}get_config'
 
 
 class UserConfig(BaseConfig):
