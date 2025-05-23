@@ -21,7 +21,7 @@ DEFAULT_APP_CONFIG = {
 DEFAULT_USER_CONFIG = {
     "selected_language": "ru",
     "selected_translator": "yandex",
-    "translate_keyboard": "alt+shift+t"  # TODO: ЗАМЕНА ГОРЯЧИХ КЛАВИШ ТОЛЬКО В CFG !
+    "translate_keyboard": "alt+shift+t"  # TODO: ЗАМЕНА ГОРЯЧИХ КЛАВИШ ТОЛЬКО ЧЕРЕЗ CFG !
 }
 
 DEFAULT_SERVER_CONFIG = {
@@ -96,6 +96,8 @@ class ServerConfig(BaseConfig):
     @property
     def api_url(self) -> str:
         return f'http://{self.server_address}/api/v1/'  # TODO: ВЫКАТИТЬ ОБНОВУ return f"https://{self.server_address}/api/v1/translate"
+
+    # TODO: ДОБАВИТЬ ЭНД ПОИНТЫ ДЛЯ ЗАПРОСА ЯЗЫКОВ, ПЕРЕВОДЧИКОВ И САМОГО ПЕРЕВОДА !
 
 
 class UserConfig(BaseConfig):
