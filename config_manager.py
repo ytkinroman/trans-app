@@ -1,9 +1,9 @@
+import sys
+import requests
 from logging import getLogger
 from typing import List
 from module.translators import Translator, Language
 from module.configs import AppConfig, ServerConfig, UserConfig
-import requests
-import sys
 from module.utils import show_error_message
 
 
@@ -33,14 +33,14 @@ class ConfigurationManager:
                 self.__languages_data = list(data.get('languages', {}).items())
 
                 if not self.__translators_data or not self.__languages_data:
-                    title, msg = "Ошибка", "Полученные данные с сервера пустые"
+                    title, msg = "Ошибка при загрузке данных с сервера", "Полученные данные с сервера пустые"
 
                     logger.error(msg)
                     show_error_message(title, msg)
 
                     sys.exit(1)
             else:
-                title, msg = "Ошибка", f'Ошибка при загрузке конфигурации с сервера. Статус: "{response.status_code}"'
+                title, msg = "Ошибка при загрузке данных с сервера", f'Ошибка при загрузке конфигурации с сервера. Статус: "{response.status_code}"'
 
                 logger.error(msg)
                 show_error_message(title, msg)
@@ -48,7 +48,7 @@ class ConfigurationManager:
                 sys.exit(1)
 
         except Exception as e:
-            title, msg = "Ошибка", f'Ошибка при загрузке конфигурации с сервера: "{e}"'
+            title, msg = "Ошибка при загрузке конфигурации с сервера", f'Ошибка при загрузке конфигурации с сервера: "{e}"'
 
             logger.error(msg)
             show_error_message(title, msg)
