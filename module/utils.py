@@ -30,10 +30,16 @@ def get_config_dir() -> str:
     return config_dir
 
 
-def show_message(title: str, message: str) -> None:
+def show_message(title: str, message: str, message_type: str = "info") -> None:
     root = tk.Tk()
     root.withdraw()
-    messagebox.showerror(title, message)
-    logger.info(f'The message is shown to the user: "{message}"')
-    root.destroy()
 
+    if message_type == "error":
+        messagebox.showerror(title, message)
+    elif message_type == "warning":
+        messagebox.showwarning(title, message)
+    else:
+        messagebox.showinfo(title, message)
+
+    logger.info(f'The {message_type} message is shown to the user: "{message}"')
+    root.destroy()
