@@ -57,7 +57,7 @@ class KeyListener(Thread):
                 try:
                     # Повторное получение session_id после переподключения
                     session_id_data = json.loads(self.ws.recv())
-                    session_id = session_id_data.get("session_id")
+                    session_id = session_id_data.get("room_id").replace("room_", "")
                     if not session_id:
                         logger.error("Не удалось получить session_id после переподключения.")
                         self.ws.close()
@@ -130,7 +130,7 @@ class KeyListener(Thread):
                 if self.__connect_websocket():
                     try:
                         session_id_data = json.loads(self.ws.recv()) # Получаем session_id при первом подключении
-                        session_id = session_id_data.get("session_id")
+                        session_id = session_id_data.get("room_id").replace("room_", "")
                         if not session_id:
                             logger.error("Не удалось получить session_id.")
                             self.ws.close()
