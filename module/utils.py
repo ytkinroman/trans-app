@@ -19,7 +19,7 @@ def create_app_icon() -> Image:
 
 
 def get_config_dir() -> str:
-    if getattr(sys, 'frozen', False):
+    if getattr(sys, "frozen", False):
         base_dir = os.path.dirname(sys.executable)
     else:
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -34,5 +34,6 @@ def show_message(title: str, message: str) -> None:
     root = tk.Tk()
     root.withdraw()
     messagebox.showerror(title, message)
+    logger.info(f'The message is shown to the user: "{message}"')
     root.destroy()
 
