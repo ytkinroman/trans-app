@@ -29,8 +29,8 @@ class ConfigurationManager:
 
             if response.status_code == 200:
                 data = response.json()
-                self.__translators_data = list(data.get('translators', {}).items())
-                self.__languages_data = list(data.get('languages', {}).items())
+                self.__translators_data = list(data.get("translators", {}).items())
+                self.__languages_data = list(data.get("languages", {}).items())
 
                 if not self.__translators_data or not self.__languages_data:
                     title, msg, msg_type = "Ошибка при загрузке данных с сервера", "Полученные данные с сервера пустые", "error"

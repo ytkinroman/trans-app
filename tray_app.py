@@ -40,7 +40,6 @@ class TrayApp:
             )
             translator_menu.append(t_item)
 
-
         languages = self.__config.languages
         language_menu = []
 
