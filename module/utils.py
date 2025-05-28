@@ -2,6 +2,8 @@ from PIL import Image, ImageDraw
 from logging import getLogger
 import os
 import sys
+import tkinter as tk
+from tkinter import messagebox
 
 
 logger = getLogger(__name__)
@@ -15,6 +17,7 @@ def create_app_icon() -> Image:
     logger.info("Application icon initialized successfully")
     return image
 
+
 def get_config_dir() -> str:
     if getattr(sys, 'frozen', False):
         base_dir = os.path.dirname(sys.executable)
@@ -25,3 +28,11 @@ def get_config_dir() -> str:
     os.makedirs(config_dir, exist_ok=True)
 
     return config_dir
+
+
+def show_error_message(title: str, message: str) -> None:
+    root = tk.Tk()
+    root.withdraw()
+    messagebox.showerror(title, message)
+    root.destroy()
+

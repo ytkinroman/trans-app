@@ -4,6 +4,7 @@ from module.translators import Translator, Language
 from module.configs import AppConfig, ServerConfig, UserConfig
 import requests
 import sys
+from module.utils import show_error_message
 
 
 SERVER_REQUEST_TIMEOUT = 2
@@ -32,14 +33,23 @@ class ConfigurationManager:
                 self.__languages_data = list(data.get('languages', {}).items())
 
                 if not self.__translators_data or not self.__languages_data:
-                    logger.error("Полученные данные с сервера пустые")
+                    title, msg = "Ошибка", "Полученные данные с сервера пустые"
+                    logger.error(msg)
+                    show_error_message(title, msg)
+
                     sys.exit(1)
             else:
-                logger.error(f'Ошибка при загрузке конфигурации с сервера. Статус: "{response.status_code}"')
+                title, msg = "Ошибка", f'Ошибка при загрузке конфигурации с сервера. Статус: "{response.status_code}"'
+                logger.error(msg)
+                show_error_message(title, msg)
+
                 sys.exit(1)
 
         except Exception as e:
-            logger.error(f'Ошибка при загрузке конфигурации с сервера: "{e}"')
+            title, msg = "Ошибка", f'Ошибка при загрузке конфигурации с сервера: "{e}"'
+            logger.error(msg)
+            show_error_message(title, msg)
+
             sys.exit(1)
 
         self.__translators = self.__init_translators()
