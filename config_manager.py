@@ -34,12 +34,14 @@ class ConfigurationManager:
 
                 if not self.__translators_data or not self.__languages_data:
                     title, msg = "Ошибка", "Полученные данные с сервера пустые"
+
                     logger.error(msg)
                     show_error_message(title, msg)
 
                     sys.exit(1)
             else:
                 title, msg = "Ошибка", f'Ошибка при загрузке конфигурации с сервера. Статус: "{response.status_code}"'
+
                 logger.error(msg)
                 show_error_message(title, msg)
 
@@ -47,6 +49,7 @@ class ConfigurationManager:
 
         except Exception as e:
             title, msg = "Ошибка", f'Ошибка при загрузке конфигурации с сервера: "{e}"'
+
             logger.error(msg)
             show_error_message(title, msg)
 
