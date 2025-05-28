@@ -33,26 +33,20 @@ class ConfigurationManager:
                 self.__languages_data = list(data.get('languages', {}).items())
 
                 if not self.__translators_data or not self.__languages_data:
-                    title, msg = "Ошибка при загрузке данных с сервера", "Полученные данные с сервера пустые"
-
+                    title, msg, msg_type = "Ошибка при загрузке данных с сервера", "Полученные данные с сервера пустые", "error"
                     logger.error(msg)
-                    show_message(title, msg)
-
+                    show_message(title, msg, msg_type)
                     sys.exit(1)
             else:
-                title, msg = "Ошибка при загрузке данных с сервера", f'Ошибка при загрузке конфигурации с сервера. Статус: "{response.status_code}"'
-
+                title, msg, msg_type = "Ошибка при загрузке данных с сервера", f'Ошибка при загрузке конфигурации с сервера. Статус: "{response.status_code}"', "error"
                 logger.error(msg)
-                show_message(title, msg)
-
+                show_message(title, msg, msg_type)
                 sys.exit(1)
 
         except Exception as e:
-            title, msg = "Ошибка при загрузке конфигурации с сервера", f'Ошибка при загрузке конфигурации с сервера: "{e}"'
-
+            title, msg, msg_type = "Ошибка при загрузке конфигурации с сервера", f'Ошибка при загрузке конфигурации с сервера: "{e}"', "error"
             logger.error(msg)
-            show_message(title, msg)
-
+            show_message(title, msg, msg_type)
             sys.exit(1)
 
         self.__translators = self.__init_translators()
