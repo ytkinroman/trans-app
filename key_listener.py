@@ -7,6 +7,7 @@ from threading import Thread
 from config_manager import ConfigurationManager
 import websocket
 import requests
+from module.utils import show_message
 
 
 logger = getLogger(__name__)
@@ -103,8 +104,13 @@ class KeyListener(Thread):
                     translated_text_data = json.loads(self.ws.recv())
                     translated_text = translated_text_data.get("result", {}).get("result", {}).get("text")
                     if translated_text is not None:
-                        logger.info(f"Перведённый текст: {translated_text}")
-                        pyperclip.copy(translated_text)
+                        if translated_text_data.get("result", {}).get("success", False):
+                            title, msg = "Ошибка", f'язык не дсотупен' # TODO: Написать сообщение
+                            logger.error(msg)
+                            show_message(title, msg)
+                        else:
+                            logger.info(f"Перведённый текст: {translated_text}")
+                            pyperclip.copy(translated_text)
                     else:
                         logger.error(f"Не удалось извлечь переведенный текст из ответа: {translated_text_data}")
                 else:

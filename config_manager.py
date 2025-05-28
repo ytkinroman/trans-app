@@ -4,7 +4,7 @@ from logging import getLogger
 from typing import List
 from module.translators import Translator, Language
 from module.configs import AppConfig, ServerConfig, UserConfig
-from module.utils import show_error_message
+from module.utils import show_message
 
 
 SERVER_REQUEST_TIMEOUT = 2
@@ -36,14 +36,14 @@ class ConfigurationManager:
                     title, msg = "Ошибка при загрузке данных с сервера", "Полученные данные с сервера пустые"
 
                     logger.error(msg)
-                    show_error_message(title, msg)
+                    show_message(title, msg)
 
                     sys.exit(1)
             else:
                 title, msg = "Ошибка при загрузке данных с сервера", f'Ошибка при загрузке конфигурации с сервера. Статус: "{response.status_code}"'
 
                 logger.error(msg)
-                show_error_message(title, msg)
+                show_message(title, msg)
 
                 sys.exit(1)
 
@@ -51,7 +51,7 @@ class ConfigurationManager:
             title, msg = "Ошибка при загрузке конфигурации с сервера", f'Ошибка при загрузке конфигурации с сервера: "{e}"'
 
             logger.error(msg)
-            show_error_message(title, msg)
+            show_message(title, msg)
 
             sys.exit(1)
 
