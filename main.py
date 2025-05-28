@@ -7,6 +7,9 @@ from tray_app import TrayApp
 from module.utils import get_config_dir
 
 
+os.system("chcp 65001 > nul")  # Switch the encoding of the console
+
+
 CONFIG_DIR = get_config_dir()
 LOG_DIR = "logs"
 LOG_FILE = "data.log"
@@ -25,14 +28,15 @@ DEFAULT_LOGGING_CONFIG = {
             "class": "logging.StreamHandler",
             "level": "INFO",
             "formatter": "simple",
-            "stream": "ext://sys.stderr"
+            "stream": "ext://sys.stderr",
         },
         "file": {
             "class": "logging.FileHandler",
             "level": "DEBUG",
             "filename": os.path.join("logs", "data.log"),
             "formatter": "simple",
-            "mode": "w"
+            "mode": "w",
+            "encoding": "utf-8"
         }
     },
     "root": {
