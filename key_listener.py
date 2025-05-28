@@ -94,27 +94,24 @@ class KeyListener(Thread):
                     logger.error(f"Ошибка при отправке запроса: {response.status_code} - {response.text}")
                     return
 
-                if response.json().get("status") == "success":
-                    # Убедимся, что WebSocket все еще подключен перед получением данных
-                    if not self.ws or not self.ws.connected:
-                        logger.error("WebSocket был отключен перед получением результата перевода.")
-                        self.__ws_connected = False
-                        return
+                if not self.ws or not self.ws.connected:
+                    logger.error("WebSocket был отключен перед получением результата перевода.")
+                    self.__ws_connected = False
+                    return
 
-                    translated_text_data = json.loads(self.ws.recv())
+                translated_text_data = json.loads(self.ws.recv())
+
+                if translated_text_data.get("error") is not "":
+                    title, msg = "Ошибка", f'язык не дсотупен'  # TODO: Написать сообщение
+                    logger.error(msg)
+                    show_message(title, msg)
+                else:
                     translated_text = translated_text_data.get("result", {}).get("result", {}).get("text")
                     if translated_text is not None:
-                        if translated_text_data.get("result", {}).get("success", False):
-                            title, msg = "Ошибка", f'язык не дсотупен' # TODO: Написать сообщение
-                            logger.error(msg)
-                            show_message(title, msg)
-                        else:
-                            logger.info(f"Перведённый текст: {translated_text}")
-                            pyperclip.copy(translated_text)
+                        logger.info(f"Перведённый текст: {translated_text}")
+                        pyperclip.copy(translated_text)
                     else:
                         logger.error(f"Не удалось извлечь переведенный текст из ответа: {translated_text_data}")
-                else:
-                    logger.error(f"Ошибка от API: {response.json()}")
 
             except websocket.WebSocketConnectionClosedException as e:
                 logger.error(f"Соединение WebSocket было закрыто во время обработки горячей клавиши: {e}")
