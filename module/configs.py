@@ -14,7 +14,7 @@ SERVER_CONFIG_FILE = "server_config.json"
 DEFAULT_APP_CONFIG = {
     "app_name": "AI Translate HUB",
     "app_description": "AI Translate HUB – онлайн переводчик",
-    "app_version": "1.3.4-dev",  # TODO: ЗАМЕНИТЬ НА РЕЛИЗЕ !
+    "app_version": "1.4.4-dev",
     "app_site": "https://ai-translate-hub.ru/"  # TODO: ЗАМЕНИТЬ НА ДОКУМЕНТАЦИЮ !
 }
 
