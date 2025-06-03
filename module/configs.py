@@ -15,7 +15,7 @@ DEFAULT_APP_CONFIG = {
     "app_name": "AI Translate HUB",
     "app_description": "AI Translate HUB – онлайн переводчик",
     "app_version": "1.4.4-dev",
-    "app_site": "https://ai-translate-hub.ru/"  # TODO: ЗАМЕНИТЬ НА ДОКУМЕНТАЦИЮ !
+    "app_site": "https://t.me/ytkinroman"
 }
 
 DEFAULT_USER_CONFIG = {

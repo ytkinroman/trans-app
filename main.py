@@ -74,7 +74,7 @@ def main() -> None:
         logger.info(f"Created default config at {logging_config_path}")
 
     config = ConfigurationManager()
-    TrayApp(config)
+    app = TrayApp(config)
 
 
 if __name__ == "__main__":

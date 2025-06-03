@@ -1,8 +1,11 @@
+import sys
 from pystray import Icon, Menu, MenuItem as Item
 from module.utils import create_app_icon
 from logging import getLogger
 from config_manager import ConfigurationManager
 from webbrowser import open as open_link
+from websocket_client import WebSocketClient
+from module.utils import show_message
 from key_listener import KeyListener
 
 
@@ -11,11 +14,22 @@ logger = getLogger(__name__)
 
 class TrayApp:
     def __init__(self, config_manager: ConfigurationManager) -> None:
-        logger.info("Starting TrayApp initialization")        
+        logger.info("Starting TrayApp initialization")
         self.__config = config_manager
 
-        #self.__key_listener = KeyListener(self.__config)  # Инициализируем KeyListener
-        #self.__key_listener.start()  # Запускаем KeyListener в отдельном потоке
+        self.ws_client = WebSocketClient(self.__config.server.websocket_url)
+        self.session_id = None
+
+        if self.ws_client.connect():
+            self.session_id = self.ws_client.session_id
+        else:
+            title, msg, msg_type = "Ошибка при websocket подключении", "Не удалось выполнить WebSocket соединение", "error"
+            logger.error(msg)
+            show_message(title, msg, msg_type)
+            sys.exit(1)
+
+        self.__key_listener = KeyListener(self.__config, self.ws_client)
+        self.__key_listener.start()
 
         self.__icon = Icon(
             self.__config.app.name,
@@ -61,7 +75,7 @@ class TrayApp:
                 Menu(*language_menu)
             ),
             Menu.SEPARATOR,
-            Item("Информация", self.__on_info),
+            Item("⚡ Обратная связь", self.__on_info),
             Item("Выход", self.__on_exit),
         )
 
@@ -73,6 +87,7 @@ class TrayApp:
             logger.info(f'Translation language changed to "{language.name}"')
             self.__config.user.set_language(language)
             self.__icon.update_menu()
+
         return handler
 
     def __on_translator_select(self, translator):
@@ -80,10 +95,20 @@ class TrayApp:
             logger.info(f'Translator changed to "{translator.name}"')
             self.__config.user.set_translator(translator)
             self.__icon.update_menu()
+
         return handler
 
     def __on_exit(self):
         logger.info('Button "Exit" clicked')
+
+        if self.__key_listener:
+            logger.info("Stopping KeyListener...")
+            self.__key_listener.stop()
+
+        if self.ws_client:
+            logger.info("Closing WebSocket connection...")
+            self.ws_client.disconnect()
+
         logger.info("TrayApp is shutting down...")
         self.__icon.stop()
 
@@ -93,8 +118,5 @@ class TrayApp:
         logger.info("Information website opened successfully")
 
     def __run(self):
-        logger.info("Started KeyListener...")
-        # self.__key_listener.run()  # TODO: Запуск потока с KeyListener
-
         logger.info("Successfully started TrayApp")
         self.__icon.run()
